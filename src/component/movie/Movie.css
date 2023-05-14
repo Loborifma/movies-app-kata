@@ -1,6 +1,6 @@
 .movie__card {
-  width: 454px;
-  height: 280px;
+  width: 100%;
+  height: 350px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-flow: row;
@@ -10,13 +10,122 @@
 }
 
 .movie__cover {
-  height: 100%;
-  width: 35%;
-  margin-right: 20px;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  height: 120px;
+  width: 90px;
 }
 
 .movie__cover > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.movie__info {
+  width: 65%;
+  flex-shrink: 2;
+  padding-right: 1rem;
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+.movie__info > div {
+  text-align: start;
+  width: 100%;
+}
+
+.movie__title {
+  position: relative;
+  left: calc(1rem + 110px);
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.movie__genre,
+.movie__release-date {
+  position: relative;
+  left: calc(1rem + 110px);
+  font-size: 1rem;
+}
+
+.movie__genre > span {
+  font-size: 12;
+  font-weight: 400;
+  color: #000000a6;
+  padding: 2px 5px;
+  background-color: #fafafa;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.movie__genre > span:last-child {
+  margin-right: 0;
+}
+
+.movie__overview {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  margin-top: 10px;
+  font-size: 1.25rem;
+}
+
+.movie__rate {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 46px;
+  padding-right: 15px;
+}
+
+.movie__rate > li > div {
+  font-size: 18px;
+}
+
+.movie__rate-round {
+  position: absolute;
+  top: 1rem;
+  right: 8px;
+  border: 2px solid grey;
+  border-radius: 50%;
+}
+
+.movie__rate-round > span {
+  display: block;
+  margin: 8px;
+  font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .movie__card {
+    height: 300px;
+  }
+
+  .movie__cover {
+    position: static;
+    height: 100%;
+    width: 35%;
+    flex-shrink: 1;
+    margin-right: 20px;
+  }
+
+  .movie__title {
+    position: static;
+    font-size: 20px;
+    margin-right: 30px;
+  }
+
+  .movie__genre,
+  .movie__release-date,
+  .movie__overview {
+    position: static;
+    font-size: 12px;
+  }
+
+  .movie__rate-round > span {
+    font-size: 12px;
+  }
 }

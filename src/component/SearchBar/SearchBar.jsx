@@ -12,6 +12,7 @@ export default class SearchBar extends React.Component {
         onChange={(e) => {
           this.props.getQueryDebounced(e.target.value);
         }}
+        aria-label="Search bar"
       />
     );
   }

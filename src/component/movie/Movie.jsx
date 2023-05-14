@@ -1,6 +1,6 @@
 import React from 'react';
 
-import MovieInfo from '../movie-info/MovieInfo';
+import MovieInfo from './MovieInfo';
 
 import './Movie.css';
 
@@ -9,14 +9,6 @@ export default class Movie extends React.Component {
     { label: 'Action', id: 1 },
     { label: 'Drama', id: 2 },
   ];
-
-  roundToHalf = (num) => {
-    const numWithHalf = Math.ceil(num) - 0.5;
-    if (num >= numWithHalf && num !== num + 1) {
-      return numWithHalf;
-    }
-    return Math.floor(num);
-  };
 
   getCorrectDate = (date) => {
     return date.split('-');
@@ -30,7 +22,6 @@ export default class Movie extends React.Component {
       ...anotherProps
     } = this.props;
 
-    const vote = this.roundToHalf(voteAverage);
     const date = this.getCorrectDate(releaseDate);
 
     return (
@@ -39,7 +30,7 @@ export default class Movie extends React.Component {
           <div className="movie__cover">
             <img src={'https://image.tmdb.org/t/p/original' + posterPath} alt="poster" />
           </div>
-          <MovieInfo {...anotherProps} vote={vote} date={date} data={this.data} />
+          <MovieInfo {...anotherProps} vote={voteAverage} date={date} data={this.data} />
         </div>
       </section>
     );

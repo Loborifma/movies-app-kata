@@ -1,3 +1,17 @@
 .navigation > li:first-child {
-  margin-right: 16px;
+  margin-right: 2rem;
+}
+
+.navigation > li > span {
+  font-size: 26px;
+}
+
+@media (min-width: 768px) {
+  .navigation > li:first-child {
+    margin-right: 16px;
+  }
+
+  .navigation > li > span {
+    font-size: 1.25rem;
+  }
 }
