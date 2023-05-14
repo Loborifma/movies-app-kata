@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { List, Pagination } from 'antd';
 
-import Movie from '../ovie/Movie';
+import Movie from '../Movie/Movie';
 
 export default class MovieList extends React.Component {
   render() {
