@@ -29,7 +29,7 @@ Movie.defaultProps = {
 };
 
 Movie.propTypes = {
-  poster_path: PropTypes.string.isRequired,
+  poster_path: PropTypes.string,
   postRate: PropTypes.func.isRequired,
 };
 

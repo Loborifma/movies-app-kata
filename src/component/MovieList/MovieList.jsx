@@ -2,7 +2,7 @@ import React from 'react';
 import { List, Pagination } from 'antd';
 import PropTypes from 'prop-types';
 
-import Movie from '../Movie/Movie';
+import Movie from '../Movie';
 
 const MovieList = ({ items, currentWidth, totalItems, getPage, currentPage, postRate }) => {
   const rowSize = currentWidth <= 768 || items.length === 1 ? 1 : 2;

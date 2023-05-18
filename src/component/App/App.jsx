@@ -72,6 +72,7 @@ export default class App extends React.Component {
   changeCurrentTabKey = (key) => {
     this.setState({
       currentTabKey: key,
+      isLoading: true,
     });
   };
 
