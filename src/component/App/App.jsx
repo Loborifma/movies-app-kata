@@ -1,26 +1,41 @@
 import React from 'react';
-import { Space, App as AntdApp } from 'antd';
+import { Space, App as AntdApp, Tabs } from 'antd';
 import _ from 'lodash';
 
 import MovieService from '../../services/MovieService';
-import MovieList from '../MovieList/MovieList';
-import SearchBar from '../SearchBar/SearchBar';
-import Navigation from '../Navigation/Navigation';
-import Spinner from '../Spinner/Spinner';
-import Error from '../Error/Error';
+import MovieList from '../MovieList';
+import SearchBar from '../SearchBar';
+import Spinner from '../Spinner';
+import Error from '../Error';
+import { MovieProvider } from '../MovieContext';
 
 import './App.css';
 
 export default class App extends React.Component {
   movieService = new MovieService();
 
-  errMessage = 'Произошла ошибка, но мы стараемся ее исправить)';
+  _errMessage = 'Произошла ошибка, но мы стараемся ее исправить';
+  _tabsItems = [
+    {
+      key: 'search',
+      label: 'Search',
+    },
+    {
+      key: 'rated',
+      label: 'Rated',
+    },
+  ];
+  _genres = [];
 
   state = {
     items: [],
-    totalItems: null,
+    sessionId: '',
+    totalItems: 0,
+    currentTabKey: 'search',
     page: 1,
     query: '',
+    queryInput: '',
+    ratedMovie: [],
     screenWidth: window.innerWidth,
     isLoading: false,
     isError: false,
@@ -28,9 +43,14 @@ export default class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.setDimension);
+    this.movieService.getGenres().then((res) => (this._genres = res));
+    this.createSession();
   }
 
   componentDidUpdate(prevProps, prevState) {
+    if (prevState.currentTabKey !== this.state.currentTabKey) {
+      this.getMovieList();
+    }
     if (prevState.query !== this.state.query) {
       this.getMovieList();
     }
@@ -49,6 +69,16 @@ export default class App extends React.Component {
     });
   }, 500);
 
+  changeCurrentTabKey = (key) => {
+    this.setState({
+      currentTabKey: key,
+    });
+  };
+
+  createSession = () => {
+    this.movieService.createGuestSession().then((res) => this.setState({ sessionId: res['guest_session_id'] }));
+  };
+
   onError = () => {
     this.setState({
       isLoading: false,
@@ -56,15 +86,65 @@ export default class App extends React.Component {
     });
   };
 
-  getMovieList = () => {
+  postRate = (id, rate) => {
     this.movieService
-      .getMoviesByKeyword(this.state.query, this.state.page)
+      .addRating(id, this.state.sessionId, rate)
+      .then(() => {
+        this.setState(({ items }) => {
+          const indx = items.findIndex((e) => e.id === id);
+
+          const oldItem = items[indx];
+          let newItem;
+
+          newItem = { ...oldItem, vote_average: rate };
+
+          const newItems = [...items.slice(0, indx), newItem, ...items.slice(indx + 1)];
+
+          return {
+            items: newItems,
+          };
+        });
+      })
+      .catch(this.onError);
+  };
+
+  getMovieList = () => {
+    const movieList =
+      this.state.currentTabKey === 'search'
+        ? this.movieService.getMoviesByKeyword(this.state.query, this.state.page)
+        : this.movieService.getRatedMovies(this.state.sessionId);
+
+    movieList
       .then((res) => {
-        this.setState({
-          items: res.results,
-          totalItems: res['total_results'],
-          isLoading: false,
-          isError: false,
+        this.setState(({ currentTabKey, ratedMovie }) => {
+          let results = res['results'];
+          let newRatedMovie = ratedMovie;
+          const ratedMovieIds = ratedMovie.map((e) => e.id);
+
+          if (currentTabKey === 'search') {
+            results = res['results'].map((e) => {
+              if (ratedMovieIds.includes(e.id)) {
+                const item = newRatedMovie.find((obj) => obj.id === e.id);
+                return { ...e, vote_average: item['rating'] };
+              }
+              return { ...e, vote_average: 0 };
+            });
+          } else {
+            newRatedMovie = res['results'].map((obj) => {
+              return {
+                id: obj['id'],
+                rating: obj['rating'],
+              };
+            });
+          }
+
+          return {
+            items: results,
+            ratedMovie: newRatedMovie,
+            totalItems: res['total_results'],
+            isLoading: false,
+            isError: false,
+          };
         });
       })
       .catch(this.onError);
@@ -77,19 +157,25 @@ export default class App extends React.Component {
     });
   };
 
-  getQuery = (text) => {
+  getQueryDebounced = _.debounce((text) => {
     const keywords = text.replace(/\s\b/g, '+');
 
     this.setState({
       query: keywords,
       isLoading: true,
     });
+  }, 400);
+
+  handleInputChange = (evt) => {
+    const newValue = evt.target.value;
+    this.setState({
+      queryInput: newValue,
+    });
+    this.getQueryDebounced(newValue);
   };
 
   render() {
-    const { isLoading, isError, items, screenWidth, totalItems, page } = this.state;
-
-    const getQueryDebounced = _.debounce(this.getQuery, 400);
+    const { isLoading, isError, items, screenWidth, totalItems, page, currentTabKey } = this.state;
 
     const hasData = !(isError || isLoading);
 
@@ -102,20 +188,40 @@ export default class App extends React.Component {
         currentWidth={screenWidth}
         getPage={this.getPage}
         totalItems={totalItems}
+        postRate={this.postRate}
       />
     ) : null;
 
+    const searchBar =
+      currentTabKey === 'search' ? (
+        <SearchBar query={this.state.queryInput} getQueryDebounced={this.handleInputChange} />
+      ) : null;
+
     return (
       <AntdApp className="app">
-        <Space className="container" size={30} direction="vertical" align="center">
+        <Tabs
+          className="navigation"
+          destroyInactiveTabPane={true}
+          centered
+          size={'large'}
+          onChange={(key) => this.changeCurrentTabKey(key)}
+          defaultActiveKey={this.state.currentTabKey}
+          items={this._tabsItems}
+        />
+        <MovieProvider
+          value={{
+            state: this.state,
+            movieService: this.movieService,
+            genres: this._genres['genres'],
+          }}
+        >
           <Space className="container" size={30} direction="vertical" align="center">
-            <Navigation />
-            <SearchBar getQueryDebounced={getQueryDebounced} />
+            {searchBar}
+            {loading}
+            {error}
+            {content}
           </Space>
-          {loading}
-          {error}
-          {content}
-        </Space>
+        </MovieProvider>
       </AntdApp>
     );
   }

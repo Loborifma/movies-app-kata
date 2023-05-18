@@ -1,39 +1,57 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { List, Pagination } from 'antd';
+import PropTypes from 'prop-types';
 
 import Movie from '../Movie/Movie';
 
-export default class MovieList extends React.Component {
-  render() {
-    const { items, currentWidth, totalItems, getPage, currentPage } = this.props;
-    const rowSize = currentWidth <= 768 ? 1 : 2;
+const MovieList = ({ items, currentWidth, totalItems, getPage, currentPage, postRate }) => {
+  const rowSize = currentWidth <= 768 || items.length === 1 ? 1 : 2;
 
-    const pagination = items.toString() ? (
-      <Pagination
-        showSizeChanger={false}
-        defaultCurrent={currentPage}
-        pageSize={20}
-        total={totalItems}
-        onChange={getPage}
+  const pagination = items.toString() ? (
+    <Pagination
+      showSizeChanger={false}
+      defaultCurrent={currentPage}
+      pageSize={20}
+      total={totalItems}
+      onChange={getPage}
+    />
+  ) : null;
+
+  return (
+    <>
+      <List
+        className="movie__list"
+        grid={{ gutter: [16, 18], column: rowSize }}
+        dataSource={items}
+        renderItem={(item) => {
+          return (
+            <List.Item key={item.id}>
+              <Movie {...item} postRate={postRate} />
+            </List.Item>
+          );
+        }}
       />
-    ) : null;
+      {pagination}
+    </>
+  );
+};
 
-    return (
-      <Fragment>
-        <List
-          className="movie__list"
-          grid={{ gutter: [16, 18], column: rowSize }}
-          dataSource={items}
-          renderItem={(item) => {
-            return (
-              <List.Item key={item.id}>
-                <Movie {...item} />
-              </List.Item>
-            );
-          }}
-        />
-        {pagination}
-      </Fragment>
-    );
-  }
-}
+MovieList.defaultProps = {
+  items: [],
+  currentWidth: 0,
+  totalItems: 0,
+  currentPage: 1,
+  getPage: () => {},
+  postRate: () => {},
+};
+
+MovieList.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.object).isRequired,
+  currentWidth: PropTypes.number.isRequired,
+  totalItems: PropTypes.number.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  getPage: PropTypes.func.isRequired,
+  postRate: PropTypes.func.isRequired,
+};
+
+export default MovieList;

@@ -1,59 +1,89 @@
 import React from 'react';
-import { enGB } from 'date-fns/locale';
+import PropTypes from 'prop-types';
 import { Space, Typography, Rate } from 'antd';
-import { format } from 'date-fns';
+
+import { MovieConsumer } from '../MovieContext';
+
+import { getCorrectDate, getShortTitle, defineRateColor, getGenresName } from './utils';
 
 import './Movie.css';
 
-const MovieInfo = ({ title, date, data, overview, vote }) => {
+const MovieInfo = ({
+  id,
+  title,
+  release_date: releaseDate,
+  genre_ids: genreIds,
+  overview,
+  vote_average: vote,
+  rating,
+  postRate,
+}) => {
   const { Text, Paragraph } = Typography;
-  const correctDate = format(new Date(...date), 'MMMM dd, yyyy', { locale: enGB });
 
-  const roundToHalf = (num) => {
-    const numWithHalf = Math.ceil(num) - 0.5;
-    if (num >= numWithHalf && num !== num + 1) {
-      return numWithHalf;
-    }
-    return Math.floor(num);
-  };
-
-  const defineRateColor = (num) => {
-    const color = { borderColor: '' };
-
-    if (num < 5) {
-      color.borderColor = 'red';
-      return color;
-    }
-    if (num < 8) {
-      color.borderColor = '#E9D100';
-      return color;
-    }
-    color.borderColor = 'green';
-    return color;
-  };
+  const _defaultOverview = 'Seems like for this movie do not add overview yet.';
 
   return (
     <div className="movie__info">
-      <Space size={8} direction="vertical">
-        <h3 className="movie__title">{title}</h3>
-        <Text className="movie__release-date" type="secondary">
-          {correctDate}
-        </Text>
-        <ul className="movie__genre">
-          {data.map((e) => {
-            return <span key={e.id}>{e.label}</span>;
-          })}
-        </ul>
-        <Paragraph className="movie__overview" ellipsis={{ rows: 3 }}>
-          {overview}
-        </Paragraph>
-        <Rate className="movie__rate" disabled allowHalf count={10} value={roundToHalf(vote)} />
-        <div className="movie__rate-round" style={defineRateColor(vote)}>
-          <span>{vote.toFixed(1)}</span>
-        </div>
-      </Space>
+      <MovieConsumer>
+        {({ state: { currentTabKey }, genres }) => {
+          const genresName = getGenresName(genreIds, genres);
+          const shortTitle = getShortTitle(title);
+          const correctDate = getCorrectDate(releaseDate);
+
+          const isRate = currentTabKey === 'search' ? vote : rating;
+
+          return (
+            <Space size={8} direction="vertical">
+              <h3 className="movie__title">{shortTitle}</h3>
+              <Text className="movie__release-date" type="secondary">
+                {correctDate}
+              </Text>
+              <ul className="movie__genre">
+                {genresName.map((obj) => {
+                  return <span key={obj.id}>{obj.name}</span>;
+                })}
+              </ul>
+              <Paragraph className="movie__overview" ellipsis={{ rows: 3 }}>
+                {overview || _defaultOverview}
+              </Paragraph>
+              <Rate
+                className="movie__rate"
+                allowHalf
+                count={10}
+                value={isRate}
+                onChange={(value) => postRate(id, value)}
+              />
+              <div className="movie__rate-round" style={defineRateColor(isRate)}>
+                <span>{isRate?.toFixed(1)}</span>
+              </div>
+            </Space>
+          );
+        }}
+      </MovieConsumer>
     </div>
   );
+};
+
+MovieInfo.defaultProps = {
+  id: 0,
+  title: '',
+  release_date: '',
+  genre_ids: [],
+  overview: '',
+  vote_average: 0,
+  rating: 0,
+  postRate: () => {},
+};
+
+MovieInfo.propTypes = {
+  id: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired,
+  release_date: PropTypes.string.isRequired,
+  genre_ids: PropTypes.arrayOf(PropTypes.number).isRequired,
+  overview: PropTypes.string.isRequired,
+  vote_average: PropTypes.number.isRequired,
+  rating: PropTypes.number.isRequired,
+  postRate: PropTypes.func.isRequired,
 };
 
 export default MovieInfo;

@@ -1,38 +1,36 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
+import defaultPoster from '../../img/default-movie.jpg';
 
 import MovieInfo from './MovieInfo';
 
 import './Movie.css';
 
-export default class Movie extends React.Component {
-  data = [
-    { label: 'Action', id: 1 },
-    { label: 'Drama', id: 2 },
-  ];
+const Movie = ({ poster_path: posterPath, postRate, ...anotherProps }) => {
+  const poster = 'https://image.tmdb.org/t/p/original' + posterPath;
+  let image = posterPath ? poster : defaultPoster;
 
-  getCorrectDate = (date) => {
-    return date.split('-');
-  };
-
-  render() {
-    const {
-      poster_path: posterPath,
-      vote_average: voteAverage,
-      release_date: releaseDate,
-      ...anotherProps
-    } = this.props;
-
-    const date = this.getCorrectDate(releaseDate);
-
-    return (
-      <section className="movie">
-        <div className="movie__card">
-          <div className="movie__cover">
-            <img src={'https://image.tmdb.org/t/p/original' + posterPath} alt="poster" />
-          </div>
-          <MovieInfo {...anotherProps} vote={voteAverage} date={date} data={this.data} />
+  return (
+    <section className="movie">
+      <div className="movie__card">
+        <div className="movie__cover">
+          <img src={image} alt="poster" />
         </div>
-      </section>
-    );
-  }
-}
+        <MovieInfo {...anotherProps} postRate={postRate} />
+      </div>
+    </section>
+  );
+};
+
+Movie.defaultProps = {
+  poster_path: '',
+  postRate: () => {},
+};
+
+Movie.propTypes = {
+  poster_path: PropTypes.string.isRequired,
+  postRate: PropTypes.func.isRequired,
+};
+
+export default Movie;

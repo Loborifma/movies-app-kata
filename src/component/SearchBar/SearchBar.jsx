@@ -1,19 +1,31 @@
 import React from 'react';
 import { Input } from 'antd';
+import PropTypes from 'prop-types';
 
 import './SearchBar.css';
 
-export default class SearchBar extends React.Component {
-  render() {
-    return (
-      <Input
-        className="search-bar"
-        placeholder="Type yo search..."
-        onChange={(e) => {
-          this.props.getQueryDebounced(e.target.value);
-        }}
-        aria-label="Search bar"
-      />
-    );
-  }
-}
+const SearchBar = ({ query, getQueryDebounced }) => {
+  return (
+    <Input
+      className="search-bar"
+      placeholder="Type to search..."
+      value={query}
+      onChange={(e) => {
+        getQueryDebounced(e);
+      }}
+      aria-label="Search bar"
+    />
+  );
+};
+
+SearchBar.defaultProps = {
+  query: '',
+  getQueryDebounced: () => {},
+};
+
+SearchBar.propTypes = {
+  query: PropTypes.string.isRequired,
+  getQueryDebounced: PropTypes.func.isRequired,
+};
+
+export default SearchBar;
