@@ -54,8 +54,6 @@ export default class MovieService {
     if (!res.ok) {
       throw new Error('Ошибка при добавлении рейтинга');
     }
-
-    return await res.json();
   }
 
   async getGenres() {

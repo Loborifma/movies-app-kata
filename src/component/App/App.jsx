@@ -36,6 +36,7 @@ export default class App extends React.Component {
     query: '',
     queryInput: '',
     ratedMovie: [],
+    errorMessage: '',
     screenWidth: window.innerWidth,
     isLoading: false,
     isError: false,
@@ -43,7 +44,10 @@ export default class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.setDimension);
-    this.movieService.getGenres().then((res) => (this._genres = res));
+    this.movieService
+      .getGenres()
+      .then((res) => (this._genres = res))
+      .catch(this.onError);
     this.createSession();
   }
 
@@ -77,7 +81,10 @@ export default class App extends React.Component {
   };
 
   createSession = () => {
-    this.movieService.createGuestSession().then((res) => this.setState({ sessionId: res['guest_session_id'] }));
+    this.movieService
+      .createGuestSession()
+      .then((res) => this.setState({ sessionId: res['guest_session_id'] }))
+      .catch(this.onError);
   };
 
   onError = () => {
@@ -180,7 +187,7 @@ export default class App extends React.Component {
 
     const hasData = !(isError || isLoading);
 
-    const error = isError ? <Error message={this.errMessage} /> : null;
+    const error = isError ? <Error message={this._errMessage} /> : null;
     const loading = isLoading ? <Spinner /> : null;
     const content = hasData ? (
       <MovieList
