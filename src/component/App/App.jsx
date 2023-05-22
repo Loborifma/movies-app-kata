@@ -7,11 +7,11 @@ import MovieList from '../MovieList';
 import SearchBar from '../SearchBar';
 import Spinner from '../Spinner';
 import Error from '../Error';
-import { MovieProvider } from '../MovieContext';
+import { MovieProvider } from '../../context/MovieContext.js';
 
 import './App.css';
 
-export default class App extends React.Component {
+class App extends React.Component {
   movieService = new MovieService();
 
   _errMessage = 'Произошла ошибка, но мы стараемся ее исправить';
@@ -99,7 +99,7 @@ export default class App extends React.Component {
       .addRating(id, this.state.sessionId, rate)
       .then(() => {
         this.setState(({ items }) => {
-          const indx = items.findIndex((e) => e.id === id);
+          const indx = items.findIndex((event) => event.id === id);
 
           const oldItem = items[indx];
           let newItem;
@@ -127,15 +127,15 @@ export default class App extends React.Component {
         this.setState(({ currentTabKey, ratedMovie }) => {
           let results = res['results'];
           let newRatedMovie = ratedMovie;
-          const ratedMovieIds = ratedMovie.map((e) => e.id);
+          const ratedMovieIds = ratedMovie.map((event) => event.id);
 
           if (currentTabKey === 'search') {
-            results = res['results'].map((e) => {
-              if (ratedMovieIds.includes(e.id)) {
-                const item = newRatedMovie.find((obj) => obj.id === e.id);
-                return { ...e, vote_average: item['rating'] };
+            results = res['results'].map((event) => {
+              if (ratedMovieIds.includes(event.id)) {
+                const item = newRatedMovie.find((obj) => obj.id === event.id);
+                return { ...event, vote_average: item['rating'] };
               }
-              return { ...e, vote_average: 0 };
+              return { ...event, vote_average: 0 };
             });
           } else {
             newRatedMovie = res['results'].map((obj) => {
@@ -174,8 +174,8 @@ export default class App extends React.Component {
     });
   }, 400);
 
-  handleInputChange = (evt) => {
-    const newValue = evt.target.value;
+  handleInputChange = (event) => {
+    const newValue = event.target.value;
     this.setState({
       queryInput: newValue,
     });
@@ -234,3 +234,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default App;

@@ -10,8 +10,8 @@ const SearchBar = ({ query, getQueryDebounced }) => {
       className="search-bar"
       placeholder="Type to search..."
       value={query}
-      onChange={(e) => {
-        getQueryDebounced(e);
+      onChange={(event) => {
+        getQueryDebounced(event);
       }}
       aria-label="Search bar"
     />

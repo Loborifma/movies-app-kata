@@ -2,11 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Space, Typography, Rate } from 'antd';
 
-import { MovieConsumer } from '../MovieContext';
+import { MovieConsumer } from '../../context/MovieContext.js';
+import { getCorrectDate, getShortTitle, defineRateColor, getGenresName } from '../../utils/utils.js';
 
-import { getCorrectDate, getShortTitle, defineRateColor, getGenresName } from './utils';
-
-import './Movie.css';
+import './MovieInfo.css';
 
 const MovieInfo = ({
   id,

@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import defaultPoster from '../../img/default-movie.jpg';
-
-import MovieInfo from './MovieInfo';
+import defaultPoster from '../../assets/images/default-movie.jpg';
+import MovieInfo from '../MovieInfo';
 
 import './Movie.css';
 
